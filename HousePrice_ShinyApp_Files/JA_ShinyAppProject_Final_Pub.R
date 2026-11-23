@@ -160,7 +160,7 @@ make_chart <- function(d, view, x, y, bins = 30L) {
               paper_bgcolor = "#1F2937", plot_bgcolor = "#1F2937",
               font = list(family = "Arial, sans-serif", color = ink))
   list(view = view, plot = config(p, displaylogo = FALSE, responsive = TRUE,
-                     modeBarButtonsToRemove = c("sendDataToCloud")),
+                     modeBarButtonsToRemove = list("sendDataToCloud")),
        title = heading, method = method, count = count)
 }
 
