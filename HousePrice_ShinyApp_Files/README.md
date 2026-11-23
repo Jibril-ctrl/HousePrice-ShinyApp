@@ -1,6 +1,6 @@
 # House Price Explorer
 
-[![Author: Jibril Anifowoshe](https://img.shields.io/badge/Author-Jibril%20Anifowoshe-7928CA?style=flat)](https://jibrilctrl.com/) · [Open the live application](https://jibrilanifowoshe.shinyapps.io/Jibril_Anifowoshe_ShinyApp/)
+[![Author: Jibril Anifowoshe](https://img.shields.io/badge/Author-Jibril%20Anifowoshe-7928CA?style=flat)](https://jibrilctrl.com/) [![Open the live app](https://img.shields.io/badge/Open%20the%20live%20app-0284C7?style=flat)](https://jibrilanifowoshe.shinyapps.io/Jibril_Anifowoshe_ShinyApp/)
 
 How did sale prices vary with living area, construction quality and neighborhood? House Price Explorer lets readers investigate those relationships across 1,460 residential sales in Ames, Iowa, from 2006 through 2010. The median recorded sale price was **$163,000**. Each chart identifies the fields, calculation and number of sales behind the result.
 
