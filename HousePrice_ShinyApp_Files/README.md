@@ -1,132 +1,42 @@
-# 🏡 Interactive House Price Analytics using Shiny and Kaggle Data
+# House Price Explorer
 
-### Author: **Jibril Anifowoshe**
-**Cybersecurity & Data Science Professional**  
-University of Missouri–St. Louis | INFSYS 6830 Project  
-📅 *Developed: April 2024 | Updated: November 2025*  
-🔗 [Live App on ShinyApps.io](https://jibrilanifowoshe.shinyapps.io/Jibril_Anifowoshe_ShinyApp/)
+[![Author: Jibril Anifowoshe](https://img.shields.io/badge/Author-Jibril%20Anifowoshe-7928CA?style=flat)](https://jibrilctrl.com/) · [Open the live application](https://jibrilanifowoshe.shinyapps.io/Jibril_Anifowoshe_ShinyApp/)
 
----
+How did sale prices vary with living area, construction quality and neighborhood? House Price Explorer lets readers investigate those relationships across 1,460 residential sales in Ames, Iowa, from 2006 through 2010. The median recorded sale price was **$163,000**. Each chart identifies the fields, calculation and number of sales behind the result.
 
-## 📘 Overview
+## Explore the data
 
-This project is an **interactive R Shiny web application** designed to explore, visualize, and analyze **house price data** from Kaggle’s *“Advanced Regression Techniques”* dataset.  
+Choose a view and its fields, then select **Generate Chart**. For a first comparison, choose **Scatter plot**, set the horizontal field to **Living area (sq ft)** and the vertical field to **Sale price (USD)**. Hover over a point to inspect a sale.
 
-The app provides users with an intuitive dashboard to generate visualizations, view statistical summaries, and gain insights into how different housing attributes influence pricing. It demonstrates applied skills in **data preprocessing**, **secure analytical workflows**, and **interactive deployment** — merging **cybersecurity discipline** with **data science exploration**.
+| Question | Views | What the chart shows |
+| --- | --- | --- |
+| How are values distributed? | Histogram, density plot, frequency polygon | The shape and spread of a numerical field. The interval control applies to the histogram and frequency polygon. |
+| How do categories compare? | Bar plot, box plot | Counts by category or the distribution of a numerical field within each group. |
+| Which features move together? | Scatter plot, correlation heatmap | Individual observations or Pearson correlations across seven selected housing fields. |
+| How did the typical sale change by year? | Line chart, area chart | The annual median of the selected measure, grouped by sale year. |
 
----
+The **Data summary** tab reports recorded, missing and distinct values for each field. Numerical fields include quartiles, range, mean and median. Categorical fields include counts by observed value.
 
-## 🧠 Key Objectives
+## Data and interpretation
 
-- Transform raw Kaggle datasets into structured, analysis-ready data using **Jupyter Notebook preprocessing**.  
-- Build a fully interactive **R Shiny dashboard** supporting customizable visualization types.  
-- Enable both technical and non-technical users to derive insights from structured data.  
-- Demonstrate reproducibility and security-conscious data handling in academic and professional contexts.
+The application reads the bundled training CSV. At startup it checks required fields, column-name uniqueness, sale ID uniqueness and finite sale prices. Charts use records with values for their selected fields. The heatmap uses the same complete rows across all seven measures.
 
----
+An association between two features can reflect other differences among homes. Annual medians also depend on which properties sold that year. These historical observations support exploratory analysis. [Kaggle dataset and field documentation](https://www.kaggle.com/competitions/house-prices-advanced-regression-techniques/data)
 
-## ⚙️ Technical Details
+## Run locally
 
-| Category | Description |
-|-----------|--------------|
-| **Framework** | R Shiny |
-| **Language(s)** | R (data visualization), Python (data cleaning in Jupyter Notebook) |
-| **Dataset Source** | Kaggle — *House Prices: Advanced Regression Techniques* |
-| **Visualization Tools** | ggplot2, Plotly, dplyr, readr, GGally, shinythemes |
-| **Security Focus** | Secure data provenance, reproducibility, automated dependency handling |
-| **Deployment Platform** | [ShinyApps.io](https://www.shinyapps.io/) |
-| **Original Date of Development** | April 8th, 2024 |
+Clone or download the repository, open R in its top-level directory and run:
 
----
-
-## 🚀 Features
-
-- Interactive user interface for plot generation  
-- Support for multiple plot types:
-  - Histogram, Density Plot, Bar Plot, Scatter Plot, Box Plot
-  - Line Chart, Area Chart, Heat Map, Frequency Polygon  
-- Customizable axes and input options  
-- Automatic package installation for missing dependencies  
-- Dataset summary statistics with formatted output  
-- Clean UI using `shinythemes`  
-
----
-
-## 🔒 Data Integrity and Cybersecurity Lens
-
-While this project focuses on analytics, it integrates **secure data science practices** throughout:
-- **Controlled dataset provenance** via Kaggle source verification  
-- **Sanitized preprocessing** in Jupyter Notebook prior to import  
-- **Dynamic dependency management** in R for secure reproducibility  
-- **Version-controlled deployment** ensuring full traceability  
-
-These controls reflect the same principles applied in professional **cyber risk and data governance frameworks**.
-
----
-
-## 🧰 Installation & Usage
-
-### Requirements
-You’ll need **R (≥ 4.0)** and the following packages:
-`shiny`, `ggplot2`, `dplyr`, `readr`, `plotly`, `shinythemes`, `GGally`, `forcats`, `reshape2`
-
-### Quick Start
-
-```bash
-# Clone this repository
-git clone https://github.com/jibrilanifowoshe/HousePrice-ShinyApp.git
-cd HousePrice-ShinyApp
-
-# Run the R Shiny App
-Rscript JA_ShinyAppProject_Final_Pub.R
+```r
+install.packages(c("shiny", "plotly"))  # First-time setup
+setwd("HousePrice_ShinyApp_Files")
+shiny::runApp(source("JA_ShinyAppProject_Final_Pub.R")$value)
 ```
 
-The app will automatically open in your default browser. Missing packages will install automatically.
+The repository retains the original R filename for its commit history. The shinyapps.io deployment packages the same application as `app.R` alongside `train.csv`. GitHub stores the source and project documentation. Shinyapps.io serves the published application.
 
----
+## Project background
 
-## 📂 Repository Structure
+Jibril Anifowoshe designed and developed the original application on April 8, 2024, for INFSYS 6830 at the University of Missouri–St. Louis under Dr. Vivek K. Singh. The November 2026 redesign adds field-aware chart controls, visible record coverage and a dark interface.
 
-```
-HousePrice-ShinyApp/
-│
-├── JA_ShinyAppProject_Final_Pub.R        # Final R Shiny app script
-├── train.csv                             # Processed Kaggle dataset
-├── JA_ShinyAPP_Dev_Report.pdf            # Full technical and academic report
-├── data_prep.ipynb                       # (Optional) Jupyter preprocessing notebook
-├── README.md                             # Documentation (this file)
-├── LICENSE                               # MIT License
-└── .gitignore                            # R and Jupyter ignore settings
-```
-
----
-
-## 📈 Future Enhancements
-
-- Integration with **Machine Learning models** for predictive insights (Random Forest / Gradient Boosting).  
-- Implementation of **secure API endpoints** for validated data input.  
-- Improved UI using **ShinyDashboard** for enterprise visual presentation.  
-- Dockerized deployment for containerized reproducibility.  
-
----
-
-## 🧾 References
-
-- Otto, M. & Fong, A. (2013). *House Prices – Advanced Regression Techniques.* Kaggle.  
-- Wickham, H. (2024). *ggplot2: Elegant Graphics for Data Analysis.*  
-- Plotly Technologies Inc. (2024). *Plotly R Open-Source Graphing Library.*  
-- RStudio Community (2024). *RStudio Resources and Tutorials.*  
-
----
-
-## 👤 Author
-
-**Jibril Anifowoshe**  
-[LinkedIn Profile](https://www.linkedin.com/in/jibril-anifowoshe)  
-
-If you found this project insightful, please ⭐ the repository or share it with others in the data science community.
-
----
-
-### 🏷 License
-This project is licensed under the [MIT License](./LICENSE) — you are free to use, modify, and distribute with attribution.
+[Development report](https://github.com/Jibril-ctrl/HousePrice-ShinyApp/blob/main/HousePrice_ShinyApp_Files/JA_ShinyAPP_Dev_Report.pdf) · [Source code](https://github.com/Jibril-ctrl/HousePrice-ShinyApp/blob/main/HousePrice_ShinyApp_Files/JA_ShinyAppProject_Final_Pub.R) · [MIT license for the project code](https://github.com/Jibril-ctrl/HousePrice-ShinyApp/blob/main/HousePrice_ShinyApp_Files/LICENSE)
