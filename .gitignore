@@ -1,0 +1,83 @@
+
+# House Price Explorer | R Shiny
+# https://github.com/Jibril-ctrl/HousePrice-ShinyApp
+
+# R and RStudio session files
+.Rhistory
+.RData
+.Ruserdata
+.RDataTmp
+.Rproj.user/
+.Rapp.history
+*.Rout
+*.Rout.fail
+
+# Shiny deployment metadata
+rsconnect/
+.rsconnect/
+
+# R package caches
+renv/library/
+renv/staging/
+renv/python/
+renv/local/
+packrat/lib/
+packrat/src/
+packrat/opt/
+
+# Environment variables and credentials
+.env
+.env.*
+!.env.example
+!.env.sample
+.Renviron
+.Renviron.*
+!.Renviron.example
+
+.httr-oauth
+.httr-oauth2
+credentials.json
+token.json
+service-account*.json
+secrets/
+.secrets/
+credentials/
+
+# Private keys and certificates
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Analysis and notebook caches
+*_cache/
+.ipynb_checkpoints/
+__pycache__/
+.pytest_cache/
+.quarto/
+.cache/
+
+# Temporary files and generated logs
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*.log
+*~
+tmp/
+temp/
+logs/
+
+# IDE-specific settings
+.vscode/
+.idea/
+
+# Operating system files
+.DS_Store
+.AppleDouble
+._*
+Thumbs.db
+Desktop.ini
+.Spotlight-V100/
+.Trashes/
