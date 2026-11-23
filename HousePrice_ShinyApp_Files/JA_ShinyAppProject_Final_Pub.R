@@ -48,7 +48,7 @@ h2{font:normal 29px/1.13 Georgia,serif;letter-spacing:-.03em;margin:0 0 20px}asi
 .js-plotly-plot .plotly .modebar-btn path{fill:#CBD5E1!important}
 )"
 
-# Keep original CSV column names so every plotted field can be traced to source.
+# I keep the original field names so I can trace each measure back to train.csv.
 read_sales <- function(path) {
   sales <- read.csv(path, check.names = FALSE, stringsAsFactors = FALSE,
                     na.strings = c("NA", ""))
@@ -65,7 +65,7 @@ paired <- c("Scatter plot", "Box plot", "Line chart", "Area chart")
 binned <- c("Histogram", "Frequency polygon")
 heat_fields <- c("SalePrice", "GrLivArea", "OverallQual", "YearBuilt",
                  "LotArea", "GarageArea", "TotalBsmtSF")
-labels <- c(SalePrice = "Sale price (USD)", GrLivArea = "Living area (sq ft)",
+labels <- c(GarageYrBlt = "Year garage was built", SalePrice = "Sale price (USD)", GrLivArea = "Living area (sq ft)",
             OverallQual = "Overall quality", YearBuilt = "Year built",
             LotArea = "Lot area (sq ft)", GarageArea = "Garage area (sq ft)",
             TotalBsmtSF = "Basement area (sq ft)", YrSold = "Year sold")
@@ -82,7 +82,7 @@ x_fields <- function(d, view) {
 format_number <- function(x) format(round(x, 2), big.mark = ",", trim = TRUE,
                                      scientific = FALSE)
 
-# Make each trace from the same complete rows used for its coverage caption.
+# I count the same sales I use to draw the chart.
 make_chart <- function(d, view, x, y, bins = 30L) {
   teal <- "#38BDF8"
   ink <- "#F3F4F6"
@@ -118,8 +118,8 @@ make_chart <- function(d, view, x, y, bins = 30L) {
       h <- hist(a, breaks = edges, plot = FALSE, include.lowest = TRUE)
       if (view == "Histogram") {
         p <- plot_ly(x = h$mids, y = h$counts, width = diff(edges), type = "bar",
-                     marker = list(color = teal), text = paste(format_number(head(edges,-1)),
-                     "to", format_number(tail(edges,-1))), hoverinfo = "text+y")
+                     marker = list(color = teal), customdata = paste(format_number(head(edges,-1)),
+                     "to", format_number(tail(edges,-1))), hovertemplate = "%{customdata}<br>%{y} sales<extra></extra>")
       } else {
         p <- plot_ly(x = h$mids, y = h$counts, type = "scatter", mode = "lines+markers",
                      line = list(color = teal))
@@ -153,9 +153,27 @@ make_chart <- function(d, view, x, y, bins = 30L) {
       method <- "Each point is the median of observed sales in that calendar year."
     }
   }
-  p <- layout(p, xaxis = list(title = axis_x, automargin = TRUE,
-                              dtick = if (view %in% c("Line chart","Area chart")) 1 else NULL),
-              yaxis = list(title = axis_y, automargin = TRUE, gridcolor = "#374151"),
+  categorical <- view %in% c("Bar plot", "Box plot", "Correlation heatmap")
+  horizontal <- list(title = axis_x, automargin = TRUE, nticks = 5,
+                     type = if (categorical) "category" else "linear",
+                     tickmode = "auto", gridcolor = "#374151")
+  if (categorical) {
+    groups <- switch(view, "Bar plot" = names(counts), "Box plot" = unique(as.character(a)),
+                     "Correlation heatmap" = heat_fields)
+    horizontal$categoryorder <- "array"
+    horizontal$categoryarray <- groups
+    horizontal$tickmode <- "array"
+    horizontal$tickvals <- groups[seq(1, length(groups), by = ceiling(length(groups) / 7))]
+    horizontal$tickangle <- -40
+  } else if (x %in% c("GarageYrBlt", "YrSold", "YearBuilt", "YearRemodAdd")) {
+    years <- pretty(range(a), n = 4)
+    horizontal$tickmode <- "array"
+    horizontal$tickvals <- unique(round(years[years >= min(a) & years <= max(a)]))
+    horizontal$tickformat <- "d"
+  }
+  vertical <- list(title = axis_y, automargin = TRUE, nticks = 5, gridcolor = "#374151")
+  if (view == "Density plot") vertical$tickformat <- ".2g"
+  p <- layout(p, xaxis = horizontal, yaxis = vertical,
               margin = list(t = 12, l = 60, r = 22, b = 60), showlegend = FALSE,
               paper_bgcolor = "#1F2937", plot_bgcolor = "#1F2937",
               font = list(family = "Arial, sans-serif", color = ink))
@@ -164,7 +182,7 @@ make_chart <- function(d, view, x, y, bins = 30L) {
        title = heading, method = method, count = count)
 }
 
-# The opening view gives visitors context before they change a single control.
+# I open with the full sample so visitors can see the baseline before choosing a field.
 build_ui <- function(d) {
   metric <- function(label, value) div(class = "metric", span(label), strong(value))
   prices <- hist(d$SalePrice, breaks = 22, plot = FALSE)$counts
@@ -184,9 +202,19 @@ build_ui <- function(d) {
       tabsetPanel(id = "section",
         tabPanel("Explore", div(class = "workspace",
           tags$aside(h2("Chart settings"), selectInput("view", "View", views, selectize = FALSE),
-            uiOutput("axes"), conditionalPanel("input.view === 'Histogram' || input.view === 'Frequency polygon'",
+            conditionalPanel("['Histogram','Density plot','Frequency polygon'].includes(input.view)",
+              selectInput("measure", "Horizontal field", choices_for(measures(d)), "SalePrice", selectize = FALSE)),
+            conditionalPanel("input.view === 'Scatter plot'",
+              selectInput("scatter_x", "Horizontal field", choices_for(measures(d)), "GrLivArea", selectize = FALSE)),
+            conditionalPanel("['Bar plot','Box plot'].includes(input.view)",
+              selectInput("group", "Horizontal field", choices_for(x_fields(d, "Bar plot")), "Neighborhood", selectize = FALSE)),
+            conditionalPanel("['Line chart','Area chart'].includes(input.view)", p("Horizontal field: Year sold")),
+            conditionalPanel("['Scatter plot','Box plot','Area chart','Line chart'].includes(input.view)",
+              selectInput("y", "Vertical field", choices_for(measures(d)), "SalePrice", selectize = FALSE)),
+            conditionalPanel("input.view === 'Histogram' || input.view === 'Frequency polygon'",
               numericInput("bins", "Intervals", 30, min = 5, max = 80)),
-            actionButton("generate", "Generate Chart")),
+            actionButton("generate", "Generate Chart"),
+            tags$small("Select Generate Chart to apply your settings.")),
           tags$section(class = "canvas", p(class = "overline", textOutput("kind", inline = TRUE)),
             h2(textOutput("heading", inline = TRUE)),
             plotlyOutput("figure", height = "430px"),
@@ -200,25 +228,18 @@ build_ui <- function(d) {
 
 build_server <- function(d) {
   function(input, output, session) {
-    output$axes <- renderUI({
-      view <- req(input$view)
-      if (view == "Correlation heatmap") return(p("Seven housing measures share one correlation scale."))
-      available <- x_fields(d, view)
-      first <- switch(view, "Box plot" = "Neighborhood", "Bar plot" = "Neighborhood",
-                      "Scatter plot" = "GrLivArea", "Line chart" = "YrSold",
-                      "Area chart" = "YrSold", "SalePrice")
-      tagList(selectInput("x", "Horizontal field", choices_for(available), first, selectize = FALSE),
-              if (view %in% paired)
-                selectInput("y", "Vertical field", choices_for(measures(d)), "SalePrice", selectize = FALSE))
-    })
+    # I keep the selectors mounted so switching views preserves the last field in each group.
+    selected_x <- reactive(switch(input$view, "Bar plot" = input$group, "Box plot" = input$group,
+      "Scatter plot" = input$scatter_x, "Area chart" = "YrSold", "Line chart" = "YrSold",
+      "Correlation heatmap" = NULL, input$measure))
     result <- reactiveVal(make_chart(d, "Histogram", "SalePrice", NULL, 30L))
     observeEvent(input$generate, {
       view <- req(input$view)
       req(view %in% views)
-      if (view != "Correlation heatmap") req(input$x %in% x_fields(d, view))
+      if (view != "Correlation heatmap") req(selected_x() %in% x_fields(d, view))
       if (view %in% paired) {
         req(input$y %in% measures(d))
-        if (input$x == input$y) {
+        if (selected_x() == input$y) {
           showNotification("Choose two different fields.", type = "warning")
           return()
         }
@@ -228,7 +249,7 @@ build_server <- function(d) {
         showNotification("Choose a whole number from 5 to 80.", type = "warning")
         return()
       }
-      result(make_chart(d, view, input$x, input$y, input$bins))
+      result(make_chart(d, view, selected_x(), input$y, input$bins))
     }, ignoreInit = FALSE)
     output$kind <- renderText(result()$view)
     output$figure <- renderPlotly(result()$plot)
@@ -254,6 +275,6 @@ build_server <- function(d) {
   }
 }
 
-# Assemble the app after its data rules, charts and interface are defined.
+# I load the sales file once and give each visitor their own chart settings.
 sales <- read_sales("train.csv")
 shinyApp(build_ui(sales), build_server(sales))
